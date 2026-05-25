@@ -1,9 +1,69 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import { PROJECTS } from "@/constants/data";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function ProjectsSection() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const headingRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Set initial states via GSAP (not inline style)
+      gsap.set(headingRef.current, { opacity: 0, y: 32 });
+      cardRefs.current.forEach((card) => {
+        if (card) gsap.set(card, { opacity: 0, y: 48 });
+      });
+
+      // --- Heading: animate in when section enters viewport ---
+      gsap.to(headingRef.current, {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+          once: true,
+        },
+      });
+
+      // --- Cards: stagger in after heading ---
+      cardRefs.current.forEach((card, idx) => {
+        if (!card) return;
+        gsap.to(card, {
+          opacity: 1,
+          y: 0,
+          duration: 0.65,
+          ease: "power3.out",
+          delay: idx * 0.12,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 75%",
+            once: true,
+          },
+        });
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <section className="flex flex-col items-center py-24 px-6 relative bg-zinc-950 border-t border-zinc-900">
-      <div className="w-full max-w-4xl flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
+    <section
+      ref={sectionRef}
+      className="flex flex-col items-center py-24 px-6 relative bg-zinc-950 border-t border-zinc-900"
+    >
+      {/* Heading */}
+      <div
+        ref={headingRef}
+        className="w-full max-w-4xl flex flex-col md:flex-row items-center justify-between mb-12 gap-6"
+      >
         <div>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center md:text-left">
             Featured Projects
@@ -14,40 +74,76 @@ export default function ProjectsSection() {
         </div>
       </div>
 
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Cards */}
+      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
         {PROJECTS.map((project, idx) => (
           <div
             key={idx}
-            className="project-card bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden flex flex-col group hover:border-zinc-700 transition-all duration-300"
+            ref={(el) => { cardRefs.current[idx] = el; }}
+            className="group relative flex flex-col bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all duration-300"
           >
-            {/* Preview placeholder */}
-            <div className="relative w-full h-48 bg-zinc-950">
-              <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center text-zinc-600 font-bold tracking-widest text-xs uppercase">
-                {project.title} Preview
-              </div>
+            {/* Index + top metadata bar */}
+            <div className="flex items-center justify-between px-5 pt-5 pb-0">
+              <span className="text-[11px] font-mono text-zinc-600 tracking-widest uppercase">
+                Project
+              </span>
+              <span className="text-[11px] font-mono text-zinc-700">
+                {String(idx + 1).padStart(2, "0")} / {String(PROJECTS.length).padStart(2, "0")}
+              </span>
             </div>
 
-            <div className="p-6 flex-1 flex flex-col gap-4">
-              <div>
-                <h3 className="text-xl font-bold mb-2 text-zinc-100 group-hover:text-red-500 transition-colors">
+            {/* Preview */}
+            <div className="mx-5 mt-3 rounded-xl overflow-hidden h-44 relative bg-zinc-950 border border-zinc-800/60">
+              <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/60 to-zinc-950 flex items-center justify-center">
+                <div
+                  className="absolute inset-0 opacity-[0.04]"
+                  style={{
+                    backgroundImage:
+                      "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
+                    backgroundSize: "28px 28px",
+                  }}
+                />
+                <span className="relative text-zinc-700 text-xs font-semibold tracking-widest uppercase">
                   {project.title}
-                </h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">{project.description}</p>
+                </span>
               </div>
-              <a
-                href={project.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-bold text-white flex items-center gap-1 hover:text-red-400 transition-colors w-fit"
-              >
-                View Repository
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  />
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
+
+            {/* Content */}
+            <div className="flex flex-col flex-1 px-5 pt-5 pb-6 gap-3">
+              <h3 className="text-lg font-bold leading-snug text-zinc-100 group-hover:text-red-400 transition-colors duration-300">
+                {project.title}
+              </h3>
+              <div className="h-px w-full bg-zinc-800" />
+              <p className="text-zinc-400 text-sm leading-relaxed flex-1">
+                {project.description}
+              </p>
+              <div className="flex items-center justify-between mt-2">
+                <a
+                  href={project.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-bold text-white flex items-center gap-1.5 hover:text-red-400 transition-colors duration-200 group/link"
+                >
+                  View Repository
+                  <svg
+                    className="w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </a>
+                <svg
+                  className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 transition-colors duration-300"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.342-3.369-1.342-.454-1.154-1.11-1.461-1.11-1.461-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836a9.59 9.59 0 0 1 2.504.337c1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
                 </svg>
-              </a>
+              </div>
             </div>
           </div>
         ))}
