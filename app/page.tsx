@@ -11,6 +11,7 @@ import PurposeSection  from "@/components/sections/PurposeSection";
 import TechSection     from "@/components/sections/TechSection";
 import StorySection    from "@/components/sections/StorySection";
 import ProjectsSection from "@/components/sections/ProjectsSection";
+import ContactSection   from "@/components/sections/ContactSection";
 
 export default function Home() {
   const container = useRef<HTMLElement>(null);
@@ -67,6 +68,8 @@ export default function Home() {
 
           {/* ── Section 4: Featured Projects ── */}
           <ProjectsSection />
+
+          <ContactSection />
         </div>
 
         {/* ── Sticky login gate (shown when guest) ── */}
