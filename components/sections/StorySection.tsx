@@ -15,7 +15,7 @@ export default function StorySection() {
           <div className="w-12 h-1 bg-red-500 mb-6 mx-auto md:mx-0" />
           <p className="text-zinc-400 text-lg md:text-xl leading-relaxed">
             Sebagai mahasiswa Ilmu Komputer dan developer yang pernah terjun langsung memoles
-            UI/UX di industri, gue sadar kalau tampilan aja gak cukup.
+            UI/UX di industri, saya sadar kalau tampilan aja gak cukup.
           </p>
         </div>
       </section>

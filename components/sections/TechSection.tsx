@@ -37,9 +37,9 @@ export default function TechSection() {
 
         {/* Title */}
         <div className="tech-title text-center mb-10">
-          <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-4">The Arsenal.</h2>
+          <h2 className="text-4xl md:text-6xl font-black tracking-tight mb-4">Core Technologies</h2>
           <p className="text-zinc-400 text-lg">
-            Bahasa, framework, dan tools yang gue pakai buat ngebangun digital experience.
+            Bahasa, framework, dan tools yang saya pakai buat ngebangun digital experience.
           </p>
         </div>
 

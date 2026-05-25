@@ -45,7 +45,7 @@ export const PURPOSE_CARDS: PurposeCard[] = [
   {
     icon:  "🚀",
     title: "Ready for Cretivox",
-    desc:  "Pembuktian nyata kalau gue siap jadi bagian dari tim.",
+    desc:  "Pembuktian nyata kalau saya siap jadi bagian dari tim.",
   },
 ];
 

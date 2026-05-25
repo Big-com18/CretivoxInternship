@@ -106,7 +106,7 @@ export default function ContactSection() {
         </div>
 
         <p className="text-white/40 text-base mb-12 max-w-md leading-relaxed">
-          Gue terbuka untuk peluang baru, kolaborasi, atau sekadar ngobrol
+         Saya terbuka untuk peluang baru, kolaborasi, atau sekadar ngobrol
           soal tech dan desain.
         </p>
 
