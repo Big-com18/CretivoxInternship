@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 interface UseGSAPAnimationsProps {
-  container: RefObject<HTMLElement | null> ;
+  container: RefObject<HTMLElement | null>;
   isLoggedIn: boolean;
 }
 
