@@ -49,9 +49,9 @@ export default function PurposeSection() {
               <em>craftsmanship</em> yang tajam dan presisi tinggi.
             </p>
             <p className="purpose-text-item text-lg text-zinc-400 leading-relaxed drop-shadow-lg">
-              Website ini bukan sekadar portofolio biasa, melainkan dedikasi dan jawaban gue untuk{" "}
+              Website ini bukan sekadar portofolio biasa, melainkan dedikasi dan jawaban saya untuk{" "}
               <strong className="text-zinc-100">Endurance Test S2B5</strong>. Pembuktian nyata
-              sejauh mana gue bisa <em>push</em> batas slicing UI, animasi GSAP, dan{" "}
+              sejauh mana saya bisa <em>push</em> batas slicing UI, animasi GSAP, dan{" "}
               <em>logical thinking</em>.
             </p>
           </div>
