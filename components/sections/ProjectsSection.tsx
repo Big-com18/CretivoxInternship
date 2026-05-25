@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 import { PROJECTS } from "@/constants/data";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -13,42 +14,64 @@ export default function ProjectsSection() {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Set initial states via GSAP (not inline style)
-      gsap.set(headingRef.current, { opacity: 0, y: 32 });
-      cardRefs.current.forEach((card) => {
-        if (card) gsap.set(card, { opacity: 0, y: 48 });
+    // 1. Pastikan semua elemen benar-be nar sudah siap (Anti-Gagal)
+    const section = sectionRef.current;
+    const heading = headingRef.current;
+    const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[];
+
+    // Validasi super ketat biar gak meleset
+    if (!section || !heading || cards.length === 0) return;
+
+    let ctx = gsap.context(() => {
+      // 2. Tentukan state awal (Ngumpet dengan efek 3D)
+      // Kita set Perspective di parent biar efek 3D-nya kelihatan
+      gsap.set(section, { perspective: 1500 });
+      
+      // Heading: transparan, agak bawah, miring
+      gsap.set(heading, { 
+        opacity: 0, 
+        y: 60, 
+        rotationX: -15, // Miring ke belakang
+        transformOrigin: "top center", // Rotasi dari atas
+      });
+      
+      // Cards: transparan, lebih bawah, miring, agak kecil
+      gsap.set(cards, { 
+        opacity: 0, 
+        y: 100, 
+        rotationX: -20, // Lebih miring
+        scale: 0.9, 
+        transformOrigin: "top center",
       });
 
-      // --- Heading: animate in when section enters viewport ---
-      gsap.to(headingRef.current, {
+      // 3. Rangkai animasinya (Aman di dalam Timeline)
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: section,
+          start: "top 75%", // Mulai pas section masuk 75% layar dari bawah
+          once: true,       // JALAN SEKALI SAJA, GAK BAKAL NGILANG
+        }
+      });
+
+      // Animasikan Heading duluan
+      tl.to(heading, {
         opacity: 1,
         y: 0,
-        duration: 0.7,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top 80%",
-          once: true,
-        },
-      });
+        rotationX: 0, // Tegak kembali
+        duration: 1.2,
+        ease: "expo.out", // Pergerakan premium
+      })
+      // Animasikan Cards menyusul dengan Stagger (bergiliran)
+      .to(cards, {
+        opacity: 1,
+        y: 0,
+        rotationX: 0,
+        scale: 1,
+        duration: 1.4,
+        ease: "expo.out",
+        stagger: 0.15, // Muncul satu per satu
+      }, "-=0.8"); // Mulai barengan sebelum heading selesai
 
-      // --- Cards: stagger in after heading ---
-      cardRefs.current.forEach((card, idx) => {
-        if (!card) return;
-        gsap.to(card, {
-          opacity: 1,
-          y: 0,
-          duration: 0.65,
-          ease: "power3.out",
-          delay: idx * 0.12,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 75%",
-            once: true,
-          },
-        });
-      });
     }, sectionRef);
 
     return () => ctx.revert();
@@ -57,19 +80,21 @@ export default function ProjectsSection() {
   return (
     <section
       ref={sectionRef}
-      className="flex flex-col items-center py-24 px-6 relative bg-zinc-950 border-t border-zinc-900"
+      className="flex flex-col items-center py-24 px-6 relative bg-zinc-950 border-t border-zinc-900 overflow-hidden"
+      style={{ perspective: "1500px" }} // Tambahin perspective di inline style juga biar aman
     >
       {/* Heading */}
       <div
         ref={headingRef}
         className="w-full max-w-4xl flex flex-col md:flex-row items-center justify-between mb-12 gap-6"
+        style={{ willChange: "transform, opacity" }} // Tips performa buat animasi 3D
       >
         <div>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center md:text-left">
             Featured Projects
           </h2>
           <p className="text-zinc-400 text-sm mt-1 text-center md:text-left">
-            Koleksi aplikasi dan sistem yang udah gue kembangin.
+            Koleksi aplikasi dan sistem yang udah dikembangin.
           </p>
         </div>
       </div>
@@ -80,7 +105,8 @@ export default function ProjectsSection() {
           <div
             key={idx}
             ref={(el) => { cardRefs.current[idx] = el; }}
-            className="group relative flex flex-col bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all duration-300"
+            // Tambahin will-change biar browser siap-siap animas i, jadi smooth
+            className="group relative flex flex-col bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-zinc-700 transition-all duration-300 will-change-transform"
           >
             {/* Index + top metadata bar */}
             <div className="flex items-center justify-between px-5 pt-5 pb-0">
@@ -92,22 +118,33 @@ export default function ProjectsSection() {
               </span>
             </div>
 
-            {/* Preview */}
+            {/* Preview (Hover membesar elegan) */}
             <div className="mx-5 mt-3 rounded-xl overflow-hidden h-44 relative bg-zinc-950 border border-zinc-800/60">
-              <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/60 to-zinc-950 flex items-center justify-center">
-                <div
-                  className="absolute inset-0 opacity-[0.04]"
-                  style={{
-                    backgroundImage:
-                      "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
-                    backgroundSize: "28px 28px",
-                  }}
+              {project.image ? (
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // 👈 Tambahkan baris ini
+                  className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
                 />
-                <span className="relative text-zinc-700 text-xs font-semibold tracking-widest uppercase">
-                  {project.title}
-                </span>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/60 to-zinc-950 flex items-center justify-center">
+                  <div
+                    className="absolute inset-0 opacity-[0.04]"
+                    style={{
+                      backgroundImage:
+                        "linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)",
+                      backgroundSize: "28px 28px",
+                    }}
+                  />
+                  <span className="relative text-zinc-700 text-xs font-semibold tracking-widest uppercase">
+                    {project.title}
+                  </span>
+                </div>
+              )}
+              {/* Red accent line on hover */}
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-500/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
             </div>
 
             {/* Content */}
@@ -126,7 +163,7 @@ export default function ProjectsSection() {
                   rel="noopener noreferrer"
                   className="text-sm font-bold text-white flex items-center gap-1.5 hover:text-red-400 transition-colors duration-200 group/link"
                 >
-                  View Repository
+                  Lihat Detail
                   <svg
                     className="w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-1"
                     fill="none"

@@ -30,3 +30,12 @@ export interface PurposeCard {
   title: string;
   desc: string;
 }
+
+export interface Contact {
+  platform:  string;
+  handle:    string;
+  href:      string;
+  icon:      string;
+  iconBg:    string;
+  iconColor: string;
+}
